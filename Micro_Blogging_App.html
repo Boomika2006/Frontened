@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Mini MicroBlog</title>
+  <style>
+    body {
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #1da1f2, #0d8ddb);
+      margin: 0;
+      padding: 0;
+    }
+
+    header {
+      background: white;
+      padding: 15px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+      color: #1da1f2;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .container {
+      width: 500px;
+      margin: 30px auto;
+      background: #fff;
+      padding: 25px;
+      border-radius: 20px;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from {opacity: 0; transform: translateY(20px);}
+      to {opacity: 1; transform: translateY(0);}
+    }
+
+    .post-box {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .post-box input[type="text"] {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #1da1f2;
+      border-radius: 25px;
+      outline: none;
+      margin-right: 10px;
+      font-size: 15px;
+    }
+
+    .post-box button {
+      background: #1da1f2;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .post-box button:hover {
+      background: #0d8ddb;
+      transform: scale(1.05);
+    }
+
+    .feed {
+      margin-top: 15px;
+    }
+
+    .tweet {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 15px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      transition: transform 0.2s;
+    }
+
+    .tweet:hover {
+      transform: translateY(-3px);
+    }
+
+    .tweet b {
+      color: #1da1f2;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    🚀 Mini MicroBlog
+  </header>
+
+  <div class="container">
+    <!-- Post Form -->
+    <div class="post-box">
+      <input type="text" placeholder="What's happening?">
+      <button>Post</button>
+    </div>
+
+    <!-- Feed -->
+    <div class="feed">
+      <div class="tweet"><b>@Alice</b> 🌸 Just finished reading a great book!</div>
+      <div class="tweet"><b>@Bob</b> ☕ Coffee + Coding = Perfect Morning</div>
+      <div class="tweet"><b>@Charlie</b> 🎶 Music makes everything better.</div>
+    </div>
+  </div>
+</body>
+</html>
