@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Foodie Delivery</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: "Segoe UI", sans-serif;
+      background: url('https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg') no-repeat center center fixed;
+      background-size: cover;
+    }
+    header {
+      background: rgba(255, 87, 34, 0.9);
+      color: white;
+      text-align: center;
+      padding: 15px;
+      font-size: 28px;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .container {
+      display: flex;
+      margin: 20px;
+    }
+    .restaurants, .menu, .cart {
+      flex: 1;
+      margin: 10px;
+      padding: 15px;
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: 15px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    h2 {
+      color: #ff5722;
+      margin-top: 0;
+    }
+    .restaurant-item {
+      padding: 10px;
+      margin: 6px 0;
+      background: #ffe0b2;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .restaurant-item:hover {
+      background: #ffcc80;
+    }
+    .item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      border-bottom: 1px solid #eee;
+    }
+    .item img {
+      width: 60px;
+      height: 60px;
+      border-radius: 10px;
+      margin-right: 10px;
+      object-fit: cover;
+    }
+    .item-details {
+      flex: 1;
+    }
+    .item-details span {
+      display: block;
+      font-size: 15px;
+    }
+    .item button {
+      background: #ff5722;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .item button:hover {
+      background: #e64a19;
+    }
+    .cart ul {
+      list-style: none;
+      padding: 0;
+    }
+    .cart ul li {
+      padding: 5px 0;
+      border-bottom: 1px solid #eee;
+    }
+    .checkout {
+      background: green;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 10px;
+      margin-top: 10px;
+      cursor: pointer;
+      font-weight: bold;
+      width: 100%;
+    }
+    .checkout:hover {
+      background: darkgreen;
+    }
+  </style>
+</head>
+<body>
+  <header>🍽️ Foodie Delivery</header>
+
+  <div class="container">
+    <!-- Restaurants -->
+    <div class="restaurants">
+      <h2>Restaurants</h2>
+      <div class="restaurant-item" onclick="showMenu('pizza')">🍕 Pizza Palace</div>
+      <div class="restaurant-item" onclick="showMenu('burger')">🍔 Burger Hub</div>
+      <div class="restaurant-item" onclick="showMenu('sushi')">🍣 Sushi Corner</div>
+      <div class="restaurant-item" onclick="showMenu('curry')">🍛 Curry House</div>
+    </div>
+
+    <!-- Menu -->
+    <div class="menu">
+      <h2 id="menu-title">Menu (Pizza Palace)</h2>
+      <div id="menu-items"></div>
+    </div>
+
+    <!-- Cart -->
+    <div class="cart">
+      <h2>Your Cart</h2>
+      <ul id="cart-list"></ul>
+      <p><b>Total: ₹<span id="total">0</span></b></p>
+      <button class="checkout" onclick="checkout()">Checkout</button>
+    </div>
+  </div>
+
+  <script>
+    let cart = [];
+    let total = 0;
+
+    const menus = {
+      pizza: [
+        { name: "Margherita Pizza", price: 250, img: "https://images.pexels.com/photos/159688/pizza-cheese-margarita-macro-159688.jpeg" },
+        { name: "Pepperoni Pizza", price: 300, img: "https://images.pexels.com/photos/315755/pexels-photo-315755.jpeg" },
+        { name: "Veggie Pizza", price: 280, img: "https://images.pexels.com/photos/905847/pexels-photo-905847.jpeg" }
+      ],
+      burger: [
+        { name: "Classic Burger", price: 200, img: "https://images.pexels.com/photos/1639563/pexels-photo-1639563.jpeg" },
+        { name: "Cheese Burger", price: 220, img: "https://images.pexels.com/photos/2983101/pexels-photo-2983101.jpeg" },
+        { name: "Veggie Burger", price: 180, img: "https://images.pexels.com/photos/1639562/pexels-photo-1639562.jpeg" }
+      ],
+      sushi: [
+        { name: "Salmon Sushi", price: 350, img: "https://images.pexels.com/photos/357756/pexels-photo-357756.jpeg" },
+        { name: "Tuna Roll", price: 300, img: "https://images.pexels.com/photos/2098085/pexels-photo-2098085.jpeg" },
+        { name: "Veg Sushi", price: 250, img: "https://images.pexels.com/photos/2098086/pexels-photo-2098086.jpeg" }
+      ],
+      curry: [
+        { name: "Butter Chicken", price: 320, img: "https://images.pexels.com/photos/1111315/pexels-photo-1111315.jpeg" },
+        { name: "Paneer Curry", price: 280, img: "https://images.pexels.com/photos/5946085/pexels-photo-5946085.jpeg" },
+        { name: "Veg Korma", price: 260, img: "https://images.pexels.com/photos/1437267/pexels-photo-1437267.jpeg" }
+      ]
+    };
+
+    function showMenu(type) {
+      const menuDiv = document.getElementById("menu-items");
+      const title = document.getElementById("menu-title");
+      title.textContent = "Menu (" + 
+        (type === "pizza" ? "Pizza Palace" : 
+         type === "burger" ? "Burger Hub" : 
+         type === "sushi" ? "Sushi Corner" : "Curry House") + ")";
+      
+      menuDiv.innerHTML = "";
+      menus[type].forEach(item => {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <img src="${item.img}" alt="${item.name}">
+          <div class="item-details">
+            <span><b>${item.name}</b></span>
+            <span>₹${item.price}</span>
+          </div>
+          <button onclick="addToCart('${item.name}', ${item.price})">Add</button>
+        `;
+        menuDiv.appendChild(div);
+      });
+    }
+
+    function addToCart(item, price) {
+      cart.push({item, price});
+      total += price;
+      displayCart();
+    }
+
+    function displayCart() {
+      const cartList = document.getElementById("cart-list");
+      cartList.innerHTML = "";
+      cart.forEach(c => {
+        let li = document.createElement("li");
+        li.textContent = c.item + " - ₹" + c.price;
+        cartList.appendChild(li);
+      });
+      document.getElementById("total").textContent = total;
+    }
+
+    function checkout() {
+      if (cart.length === 0) {
+        alert("Your cart is empty!");
+      } else {
+        alert("Order placed successfully 🎉! Total: ₹" + total);
+        cart = [];
+        total = 0;
+        displayCart();
+      }
+    }
+
+    // Load Pizza Palace menu by default
+    showMenu('pizza');
+  </script>
+</body>
+</html>
