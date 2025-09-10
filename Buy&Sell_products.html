@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>ClassiList — Buy & Sell Used Products</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root{
+      --accent:#2b8aef;
+      --muted:#6b7280;
+      --card:#ffffff;
+      --bg:#f3f6fb;
+      --danger:#ef4444;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial;
+      background:var(--bg);
+      color:#111827;
+      -webkit-font-smoothing:antialiased;
+    }
+    header{
+      background:linear-gradient(90deg,var(--accent),#1f6ad8);
+      color:white;
+      padding:14px 22px;
+      display:flex;
+      gap:12px;
+      align-items:center;
+      justify-content:space-between;
+    }
+    header h1{margin:0;font-size:18px;letter-spacing:.3px}
+    .top-controls{display:flex;gap:8px;align-items:center}
+    .btn{background:var(--accent);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.18);color:white}
+    .container{max-width:1150px;margin:20px auto;padding:10px}
+    .grid{display:grid;grid-template-columns:280px 1fr 320px;gap:16px}
+    /* left / center / right cards */
+    .card{background:var(--card);border-radius:12px;padding:14px;box-shadow:0 6px 18px rgba(2,6,23,0.06)}
+    h2{margin:0 0 10px 0;color:var(--muted);font-size:15px}
+
+    /* left: create & filters */
+    .field{margin-bottom:8px}
+    label{display:block;font-size:13px;color:var(--muted);margin-bottom:6px}
+    input[type="text"], input[type="email"], select, textarea{
+      width:100%;padding:8px;border:1px solid #e6edf6;border-radius:8px;font-size:14px
+    }
+    textarea{min-height:80px;resize:vertical}
+    .small{font-size:12px;color:#374151;margin-top:6px}
+
+    /* center: listings */
+    .searchbar{display:flex;gap:8px;margin-bottom:12px}
+    .searchbar input{flex:1;padding:10px;border-radius:10px;border:1px solid #e6edf6}
+    .listings{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px}
+    .listing{
+      border-radius:10px;overflow:hidden;border:1px solid #e6edf6;background:white;display:flex;flex-direction:column;
+    }
+    .listing img{width:100%;height:150px;object-fit:cover;background:#f8fafc}
+    .listing .body{padding:10px;flex:1;display:flex;flex-direction:column;gap:8px}
+    .meta{font-size:13px;color:var(--muted)}
+    .title{font-weight:600}
+    .price{color:var(--accent);font-weight:700}
+
+    /* right: user & favorites */
+    .user-panel{display:flex;gap:10px;align-items:center}
+    .avatar{width:56px;height:56px;border-radius:10px;background:linear-gradient(90deg,#ffd9a8,#ffb36b);display:flex;align-items:center;justify-content:center;font-weight:700;color:#462b00}
+    .fav-list{display:flex;flex-direction:column;gap:8px}
+    .fav-item{display:flex;gap:8px;align-items:center}
+    .fav-item img{width:52px;height:48px;object-fit:cover;border-radius:8px}
+
+    /* modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,0.45);z-index:50}
+    .modal.show{display:flex}
+    .modal-card{width:720px;max-width:95%;background:white;border-radius:12px;padding:14px}
+    .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+    .close{background:#efefef;border:0;padding:6px 8px;border-radius:8px;cursor:pointer}
+
+    /* small helpers */
+    .row{display:flex;gap:8px;align-items:center}
+    .muted{color:var(--muted);font-size:13px}
+    .badge{font-size:12px;padding:4px 8px;border-radius:999px;background:#eef2ff;color:#4338ca}
+    .actions{display:flex;gap:6px}
+    .danger{background:var(--danger);color:white;border:none;padding:6px 8px;border-radius:8px;cursor:pointer}
+
+    @media (max-width:1000px){
+      .grid{grid-template-columns:1fr; }
+      .user-panel{flex-wrap:wrap}
+      .container{padding:12px}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>ClassiList — Buy & Sell Used Items</h1>
+    <div class="top-controls">
+      <div id="welcomeText" class="muted">Welcome — please sign in</div>
+      <button class="btn" id="btnOpenLogin">Sign in / Register</button>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="grid">
+      <!-- LEFT: Create listing + filters -->
+      <section class="card">
+        <h2>Create a Listing</h2>
+        <div class="field">
+          <label>Title</label><input id="inputTitle" type="text" placeholder="e.g., iPhone 8 - good condition" />
+        </div>
+        <div class="field">
+          <label>Category</label>
+          <select id="inputCategory">
+            <option>Electronics</option>
+            <option>Mobiles</option>
+            <option>Furniture</option>
+            <option>Books</option>
+            <option>Clothing</option>
+            <option>Appliances</option>
+            <option>Misc</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Price (₹)</label><input id="inputPrice" type="text" placeholder="Price in INR" />
+        </div>
+        <div class="field">
+          <label>Location</label><input id="inputLocation" type="text" placeholder="City / Neighborhood" />
+        </div>
+        <div class="field">
+          <label>Description</label><textarea id="inputDescription" placeholder="Short description, condition, flaws..."></textarea>
+        </div>
+        <div class="field">
+          <label>Image (one)</label>
+          <input id="inputImage" type="file" accept="image/*" />
+          <div id="previewWrap" class="small"></div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <button class="btn" id="btnCreate">Publish Listing</button>
+          <button class="btn ghost" id="btnClear">Clear</button>
+        </div>
+
+        <hr style="margin:14px 0">
+
+        <h2>Search & Filters</h2>
+        <div class="field">
+          <label>Search</label>
+          <input id="searchInput" type="text" placeholder="Search title or description..." />
+        </div>
+        <div class="field">
+          <label>Category filter</label>
+          <select id="filterCategory"><option value="">All categories</option></select>
+        </div>
+        <div class="field">
+          <label>Sort by</label>
+          <select id="sortBy">
+            <option value="new">Newest</option>
+            <option value="price_asc">Price low → high</option>
+            <option value="price_desc">Price high → low</option>
+          </select>
+        </div>
+        <div class="small">Listings are stored locally (localStorage). This demo requires no backend.</div>
+      </section>
+
+      <!-- CENTER: Listings feed -->
+      <section class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+          <h2>Listings</h2>
+          <div class="row">
+            <input id="quickSearch" type="text" placeholder="Quick search..." style="padding:8px;border-radius:8px;border:1px solid #e6edf6" />
+            <button class="btn ghost" id="btnRefresh">Refresh</button>
+          </div>
+        </div>
+
+        <div id="emptyHint" class="muted" style="display:none">No listings yet — create one on the left.</div>
+
+        <div class="listings" id="listingsGrid"></div>
+
+        <div style="margin-top:12px;display:flex;justify-content:center">
+          <button class="btn ghost" id="btnLoadMore" style="display:none">Load more</button>
+        </div>
+      </section>
+
+      <!-- RIGHT: user, favorites, dashboard -->
+      <aside class="card">
+        <h2>Profile</h2>
+        <div class="user-panel" id="userPanel">
+          <div class="avatar" id="userAvatar">G</div>
+          <div>
+            <div id="userName" style="font-weight:700">Guest</div>
+            <div class="muted" id="userEmail">Not signed in</div>
+          </div>
+        </div>
+
+        <hr style="margin:12px 0">
+
+        <h2>Favorites</h2>
+        <div class="fav-list" id="favList"></div>
+
+        <hr style="margin:12px 0">
+
+        <h2>Your Listings</h2>
+        <div id="myListings" class="muted">No items. Publish to see them here.</div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- Listing Detail Modal -->
+  <div id="modal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div><strong id="detailTitle">Item title</strong> <span id="detailBadge" class="badge"></span></div>
+        <div><button class="close" id="closeModal">Close</button></div>
+      </div>
+      <div style="display:flex;gap:12px">
+        <div style="flex:1">
+          <img id="detailImg" src="" alt="" style="width:100%;height:280px;object-fit:cover;border-radius:8px" />
+        </div>
+        <div style="width:320px">
+          <div class="muted" id="detailPrice"></div>
+          <div style="margin-top:8px" id="detailDesc"></div>
+          <div style="margin-top:12px" class="muted">Location: <span id="detailLocation"></span></div>
+          <div style="margin-top:8px" class="muted">Seller: <span id="detailSeller"></span></div>
+
+          <div style="margin-top:14px;display:flex;gap:8px">
+            <button class="btn" id="btnContactSeller">Contact Seller</button>
+            <button class="btn ghost" id="btnFavToggle">Add to Favorites</button>
+            <button class="danger" id="btnReport">Report</button>
+          </div>
+
+          <div style="margin-top:12px">
+            <label class="muted">Share listing</label>
+            <div style="display:flex;gap:8px;margin-top:6px">
+              <input id="shareLink" type="text" readonly style="flex:1;padding:8px;border-radius:8px;border:1px solid #e6edf6" />
+              <button class="btn ghost" id="btnCopyLink">Copy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simple sign-in modal -->
+  <div id="loginModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="modal-head"><div><strong>Sign in / Register</strong></div><div><button class="close" id="closeLogin">Close</button></div></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <label>Name</label><input id="regName" type="text" />
+          <label style="margin-top:8px">Email</label><input id="regEmail" type="email" />
+          <label style="margin-top:8px">Phone (optional)</label><input id="regPhone" type="text" />
+          <div style="margin-top:10px"><button class="btn" id="btnRegister">Register / Sign in</button></div>
+        </div>
+        <div>
+          <p class="muted">Why register?</p>
+          <ul class="muted">
+            <li>Create & manage listings</li>
+            <li>Contact sellers</li>
+            <li>Save favorites</li>
+          </ul>
+          <div style="margin-top:12px">
+            <button class="btn ghost" id="btnContinueGuest">Continue as Guest</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ========= Simple client-only classifieds with localStorage =========
+   - Users are simulated and persisted in localStorage (no password).
+   - Listings stored in localStorage as array of objects: {id,title,category,price,location,desc,imgDataURL,ownerName,ownerEmail,createdAt}
+   - Favorites tracked per-user.
+   - Image uploads converted to dataURL (FileReader) so images persist in localStorage.
+====================================================================*/
+
+// keys
+const KEY_LISTINGS = 'cl_listings_v1';
+const KEY_USER = 'cl_user_v1';
+const KEY_FAVORITES = 'cl_favs_v1';
+
+// helpers
+const $ = id => document.getElementById(id);
+const now = ()=> new Date().toISOString();
+const uid = ()=> 'id'+Math.random().toString(36).slice(2,10);
+const read = k => JSON.parse(localStorage.getItem(k) || '[]');
+const write = (k,v)=> localStorage.setItem(k, JSON.stringify(v));
+
+// initial UI wiring
+const listingsGrid = $('listingsGrid');
+const filterCategory = $('filterCategory');
+const searchInput = $('searchInput');
+const quickSearch = $('quickSearch');
+const sortBy = $('sortBy');
+const emptyHint = $('emptyHint');
+const favList = $('favList');
+const myListingsDiv = $('myListings');
+
+// modals
+const modal = $('modal'), loginModal = $('loginModal');
+
+// current state
+let displayedCount = 12;
+
+// load / init
+function loadListings(){ return read(KEY_LISTINGS); }
+function saveListings(arr){ write(KEY_LISTINGS, arr); }
+
+function getCurrentUser(){ return JSON.parse(localStorage.getItem(KEY_USER) || 'null'); }
+function setCurrentUser(u){ localStorage.setItem(KEY_USER, JSON.stringify(u)); renderUserPanel(); renderMyListings(); renderFavs(); }
+
+function getFavs(){ return JSON.parse(localStorage.getItem(KEY_FAVORITES) || '{}'); }
+function setFavs(obj){ localStorage.setItem(KEY_FAVORITES, JSON.stringify(obj)); renderFavs(); }
+
+function ensureSampleData(){
+  if(loadListings().length>0) return;
+  const samples = [
+    {id:uid(),title:"Used MacBook Pro 2015",category:"Electronics",price:25000,location:"Bengaluru",desc:"Good condition, battery replaced",imgData:"",ownerName:"Ravi",ownerEmail:"ravi@example.com",createdAt:now()},
+    {id:uid(),title:"Wooden Dining Table",category:"Furniture",price:6000,location:"Chennai",desc:"Seats 6, minor scratches",imgData:"",ownerName:"Meera",ownerEmail:"meera@example.com",createdAt:now()},
+    {id:uid(),title:"Samsung Galaxy A10",category:"Mobiles",price:6500,location:"Hyderabad",desc:"Screen guard applied, 2 years old",imgData:"",ownerName:"Karan",ownerEmail:"karan@example.com",createdAt:now()}
+  ];
+  saveListings(samples);
+}
+ensureSampleData();
+
+// UI renderers
+function populateCategoryFilter(){
+  const cats = new Set(loadListings().map(l=>l.category));
+  filterCategory.innerHTML = '<option value="">All categories</option>';
+  cats.forEach(c=> filterCategory.insertAdjacentHTML('beforeend', `<option>${c}</option>`));
+}
+populateCategoryFilter();
+
+function renderUserPanel(){
+  const user = getCurrentUser();
+  if(user){
+    $('welcomeText').textContent = `Signed in as ${user.name}`;
+    $('userName').textContent = user.name;
+    $('userEmail').textContent = user.email || 'No email';
+    $('userAvatar').textContent = (user.name||'G').slice(0,1).toUpperCase();
+    $('btnOpenLogin').textContent = 'Sign out';
+    $('btnOpenLogin').onclick = ()=> { localStorage.removeItem(KEY_USER); setCurrentUser(null); };
+  } else {
+    $('welcomeText').textContent = `Welcome — please sign in`;
+    $('userName').textContent = 'Guest';
+    $('userEmail').textContent = 'Not signed in';
+    $('userAvatar').textContent = 'G';
+    $('btnOpenLogin').textContent = 'Sign in / Register';
+    $('btnOpenLogin').onclick = ()=>{ loginModal.classList.add('show'); };
+  }
+}
+renderUserPanel();
+
+function renderFavs(){
+  const user = getCurrentUser();
+  favList.innerHTML = '';
+  if(!user){ favList.innerHTML = '<div class="muted">Sign in to save favorites</div>'; return; }
+  const favs = getFavs()[user.email] || [];
+  if(!favs.length){ favList.innerHTML = '<div class="muted">No favorites yet</div>'; return; }
+  const all = loadListings();
+  favs.forEach(fid=>{
+    const it = all.find(x=>x.id===fid);
+    if(!it) return;
+    const node = document.createElement('div'); node.className = 'fav-item';
+    node.innerHTML = `<img src="${it.imgData||blankImg()}" alt=""><div style="flex:1"><div style="font-weight:600">${it.title}</div><div class="muted">${it.price ? '₹'+it.price : ''}</div></div><button class="btn ghost" onclick="openDetail('${it.id}')">View</button>`;
+    favList.appendChild(node);
+  });
+}
+
+function renderMyListings(){
+  const user = getCurrentUser();
+  if(!user){ myListingsDiv.innerHTML = '<div class="muted">Sign in to manage your listings</div>'; return; }
+  const all = loadListings().filter(l=> l.ownerEmail === user.email);
+  if(!all.length){ myListingsDiv.innerHTML = '<div class="muted">No items. Publish to see them here.</div>'; return; }
+  myListingsDiv.innerHTML = '';
+  all.forEach(l=>{
+    const el = document.createElement('div'); el.style.marginBottom='8px';
+    el.innerHTML = `<div style="display:flex;gap:8px;align-items:center"><img src="${l.imgData||blankImg()}" style="width:64px;height:52px;object-fit:cover;border-radius:8px"><div style="flex:1"><div style="font-weight:600">${l.title}</div><div class="muted">${l.category} • ₹${l.price}</div></div><div class="actions"><button class="btn" onclick="openEdit('${l.id}')">Edit</button><button class="btn ghost" onclick="deleteListing('${l.id}')">Delete</button></div></div>`;
+    myListingsDiv.appendChild(el);
+  });
+}
+
+// listing render with filters
+function renderListings({resetCount=true}={}) {
+  if(resetCount) displayedCount = 12;
+  const all = loadListings();
+  // filters
+  const q = (searchInput.value || '').toLowerCase() || (quickSearch.value||'').toLowerCase();
+  const cat = filterCategory.value;
+  let filtered = all.filter(l=>{
+    const text = (l.title+' '+l.desc+' '+(l.location||'')).toLowerCase();
+    if(q && !text.includes(q)) return false;
+    if(cat && l.category !== cat) return false;
+    return true;
+  });
+
+  // sort
+  const s = sortBy.value;
+  if(s === 'price_asc') filtered.sort((a,b)=> (a.price||0)-(b.price||0));
+  else if(s === 'price_desc') filtered.sort((a,b)=> (b.price||0)-(a.price||0));
+  else filtered.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
+
+  listingsGrid.innerHTML = '';
+  if(!filtered.length){ emptyHint.style.display='block'; return; } else emptyHint.style.display='none';
+
+  // pagination (simple)
+  const show = filtered.slice(0, displayedCount);
+  show.forEach(l=>{
+    const card = document.createElement('div'); card.className='listing';
+    card.innerHTML = `<img src="${l.imgData||blankImg()}" alt="">
+      <div class="body">
+        <div class="row" style="justify-content:space-between"><div class="title">${escapeHtml(l.title)}</div><div class="price">₹${l.price||'—'}</div></div>
+        <div class="meta">${escapeHtml(l.category)} • ${escapeHtml(l.location || '')}</div>
+        <div style="margin-top:auto;display:flex;gap:6px;align-items:center">
+          <button class="btn" onclick="openDetail('${l.id}')">View</button>
+          <button class="btn ghost" onclick="toggleFav('${l.id}')">❤</button>
+        </div>
+      </div>`;
+    listingsGrid.appendChild(card);
+  });
+
+  $('btnLoadMore').style.display = filtered.length>show.length ? 'inline-block' : 'none';
+}
+
+// helpers: small blank image (svg dataURL)
+function blankImg(){
+  return 'data:image/svg+xml;utf8,'+encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='600' height='400'><rect width='100%' height='100%' fill='#f3f6fb'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' fill='#cbd5e1' font-family='sans-serif' font-size='20'>No image</text></svg>`);
+}
+function escapeHtml(s){ if(!s) return ''; return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;'); }
+
+// detail modal
+function openDetail(id){
+  const all = loadListings();
+  const it = all.find(x=>x.id===id);
+  if(!it) return alert('Listing not found');
+  $('detailTitle').textContent = it.title;
+  $('detailBadge').textContent = it.category;
+  $('detailImg').src = it.imgData || blankImg();
+  $('detailPrice').textContent = it.price ? '₹'+it.price : 'Price: contact seller';
+  $('detailDesc').textContent = it.desc || 'No description';
+  $('detailLocation').textContent = it.location || '—';
+  $('detailSeller').textContent = `${it.ownerName || 'Seller'} • ${it.ownerEmail || ''}`;
+  $('shareLink').value = location.href + '#listing='+it.id;
+  // fav toggle label
+  const user = getCurrentUser();
+  const favs = getFavs();
+  const isFav = user && (favs[user.email]||[]).includes(id);
+  $('btnFavToggle').textContent = isFav ? 'Remove favorite' : 'Add to Favorites';
+  $('btnFavToggle').onclick = ()=> toggleFav(id);
+  $('btnContactSeller').onclick = ()=> contactSeller(it);
+  $('btnReport').onclick = ()=> { alert('Report submitted. Thank you.'); modal.classList.remove('show'); };
+  $('btnCopyLink').onclick = ()=> { $('shareLink').select(); document.execCommand('copy'); alert('Copied link'); };
+  modal.classList.add('show');
+}
+$('closeModal').onclick = ()=> modal.classList.remove('show');
+
+// contact seller (simulated)
+function contactSeller(listing){
+  const user = getCurrentUser();
+  if(!user){ alert('Please sign in to contact sellers'); loginModal.classList.add('show'); return; }
+  // open default email client (mailto) - in demo we show an alert
+  const mailto = `mailto:${listing.ownerEmail}?subject=Interested in:${encodeURIComponent(listing.title)}&body=Hi ${listing.ownerName || ''},%0A%0AI am interested in your listing...`;
+  // use window.open for demo
+  window.open(mailto,'_blank');
+}
+
+// favorites toggle
+function toggleFav(id){
+  const user = getCurrentUser();
+  if(!user){ alert('Sign in to save favorites'); loginModal.classList.add('show'); return; }
+  const favs = getFavs();
+  const list = favs[user.email] || [];
+  const idx = list.indexOf(id);
+  if(idx >= 0) list.splice(idx,1); else list.push(id);
+  favs[user.email] = list;
+  setFavs(favs);
+}
+
+// delete listing (only owner)
+function deleteListing(id){
+  const user = getCurrentUser();
+  if(!user){ alert('Sign in first'); return; }
+  const all = loadListings();
+  const it = all.find(x=>x.id===id);
+  if(!it) return;
+  if(it.ownerEmail !== user.email){ alert('You can only delete your listings'); return; }
+  if(!confirm('Delete this listing?')) return;
+  const rem = all.filter(x=>x.id!==id);
+  saveListings(rem); populateCategoryFilter(); renderListings(); renderMyListings();
+}
+
+// open edit (populate left form)
+function openEdit(id){
+  const all = loadListings(); const it = all.find(x=>x.id===id);
+  if(!it) return;
+  const user = getCurrentUser(); if(!user || it.ownerEmail !== user.email){ alert('Only owner can edit'); return; }
+  $('inputTitle').value = it.title;
+  $('inputCategory').value = it.category;
+  $('inputPrice').value = it.price;
+  $('inputLocation').value = it.location;
+  $('inputDescription').value = it.desc;
+  $('previewWrap').innerHTML = `<img src="${it.imgData||blankImg()}" style="width:100%;margin-top:8px;border-radius:8px" />`;
+  // store editing fingerprint
+  $('btnCreate').dataset.editId = it.id;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// create/listing actions
+$('inputImage').addEventListener('change', e=>{
+  const f = e.target.files[0];
+  if(!f) return;
+  const fr = new FileReader();
+  fr.onload = ()=> { $('previewWrap').innerHTML = `<img src="${fr.result}" style="width:100%;margin-top:8px;border-radius:8px" />`; $('previewWrap').dataset.img = fr.result; };
+  fr.readAsDataURL(f);
+});
+
+$('btnCreate').onclick = ()=>{
+  const title = $('inputTitle').value.trim();
+  const category = $('inputCategory').value;
+  const price = parseFloat($('inputPrice').value) || 0;
+  const location = $('inputLocation').value.trim();
+  const desc = $('inputDescription').value.trim();
+  const imgData = $('previewWrap').dataset.img || '';
+  if(!title){ alert('Title required'); return; }
+  const user = getCurrentUser();
+  const ownerName = user ? user.name : 'Guest';
+  const ownerEmail = user ? user.email : 'guest@local';
+  const all = loadListings();
+  const editId = $('btnCreate').dataset.editId;
+  if(editId){
+    // update
+    const it = all.find(x=>x.id===editId);
+    if(it && it.ownerEmail === ownerEmail){
+      it.title = title; it.category = category; it.price = price; it.location = location; it.desc = desc; if(imgData) it.imgData = imgData;
+      it.createdAt = now();
+      saveListings(all);
+      delete $('btnCreate').dataset.editId;
+    } else {
+      alert('Cannot edit (not owner)');
+      return;
+    }
+  } else {
+    const listing = { id: uid(), title, category, price, location, desc, imgData, ownerName, ownerEmail, createdAt: now() };
+    all.unshift(listing);
+    saveListings(all);
+  }
+  // reset UI
+  $('inputTitle').value=''; $('inputPrice').value=''; $('inputLocation').value=''; $('inputDescription').value=''; $('inputImage').value=''; $('previewWrap').innerHTML=''; delete $('previewWrap').dataset.img;
+  populateCategoryFilter(); renderListings(); renderMyListings();
+};
+
+$('btnClear').onclick = ()=>{ $('inputTitle').value=''; $('inputPrice').value=''; $('inputLocation').value=''; $('inputDescription').value=''; $('inputImage').value=''; $('previewWrap').innerHTML=''; delete $('btnCreate').dataset.editId; delete $('previewWrap').dataset.img; };
+
+// search & filters events
+['searchInput','filterCategory','sortBy'].forEach(id=>{
+  $(id).addEventListener('change', ()=> renderListings({resetCount:true}));
+});
+quickSearch.addEventListener('input', ()=> { searchInput.value = quickSearch.value; renderListings({resetCount:true}); });
+$('btnRefresh').onclick = ()=> renderListings({resetCount:true});
+$('btnLoadMore').onclick = ()=> { displayedCount += 12; renderListings({resetCount:false}); };
+
+// sign-in modal
+$('btnOpenLogin').onclick = ()=> loginModal.classList.add('show');
+$('closeLogin').onclick = ()=> loginModal.classList.remove('show');
+$('btnContinueGuest').onclick = ()=> { setCurrentUser(null); loginModal.classList.remove('show'); };
+
+$('btnRegister').onclick = ()=>{
+  const name = $('regName').value.trim(); const email = $('regEmail').value.trim(); const phone = $('regPhone').value.trim();
+  if(!name || !email){ alert('Name and email required'); return; }
+  const user = { name, email, phone };
+  setCurrentUser(user);
+  // initialize favs slot
+  const favs = getFavs(); if(!favs[email]) favs[email]=[]; setFavs(favs);
+  loginModal.classList.remove('show');
+};
+
+// quick deep-link support: open modal if #listing=id present
+(function checkDeepLink(){
+  const hash = location.hash;
+  if(hash.startsWith('#listing=')){ const id = hash.split('=')[1]; setTimeout(()=> openDetail(id),300); }
+})();
+
+// editing helpers
+function contactSellerExternal(email){ window.open('mailto:'+email); }
+
+// copy helper - already used in modal ctrl
+$('btnCopyLink').onclick = ()=> { $('shareLink').select(); document.execCommand('copy'); alert('Copied'); };
+
+// small utilities
+function showRecommendationForListing(id){
+  // placeholder - in demo recommendations used elsewhere
+}
+
+// delete helper exposed globally
+window.deleteListing = deleteListing;
+window.openEdit = openEdit;
+window.openDetail = openDetail;
+window.toggleFav = toggleFav;
+
+// initial render
+populateCategoryFilter();
+renderListings();
+renderFavs();
+renderMyListings();
+
+// simple keyboard: enter on quick search
+quickSearch.addEventListener('keydown', e=>{ if(e.key==='Enter') renderListings({resetCount:true}); });
+
+</script>
+</body>
+</html>
