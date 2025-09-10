@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Boomika Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@400;600&family=Sacramento&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Raleway', sans-serif;
+      background: #ffffff;
+      color: #333;
+    }
+
+    /* Navigation Bar */
+    nav {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background: #f3e8ff;
+      padding: 10px 0;
+      box-shadow: 0 2px 10px rgba(166, 77, 255, 0.2);
+      z-index: 1000;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      justify-content: center;
+      margin: 0;
+      padding: 0;
+    }
+    nav li {
+      margin: 0 20px;
+    }
+    nav a {
+      text-decoration: none;
+      color: #4b0082;
+      font-weight: 600;
+    }
+
+    /* Header Section */
+    header {
+      padding-top: 100px;
+      background: linear-gradient(to right, #f3e8ff, #ffffff);
+      text-align: center;
+      padding-bottom: 40px;
+    }
+    .intro-line {
+      font-family: 'Sacramento', cursive;
+      font-size: 2.2em;
+      color: #8a2be2;
+      margin: 0;
+    }
+    .name-line {
+      font-size: 2.8em;
+      font-weight: bold;
+      margin: 5px 0;
+      color: #1a1aff;
+    }
+    .title-line {
+      font-size: 1.1em;
+      color: #555;
+      margin-bottom: 15px;
+    }
+
+    .links a {
+      margin: 0 10px;
+      text-decoration: none;
+      color: #4b0082;
+      font-weight: 600;
+    }
+
+    /* Sections */
+    section {
+      text-align: center;
+      padding: 40px 20px;
+    }
+    section h2 {
+      color: #4b0082;
+      margin-bottom: 15px;
+      font-size: 1.8em;
+    }
+    section p {
+      max-width: 700px;
+      margin: auto;
+      font-size: 1.1em;
+      line-height: 1.6;
+      color: #444;
+    }
+
+    /* Boxes */
+    .box-container {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 30px;
+      margin-top: 30px;
+    }
+    .box {
+      border: 2px solid #a64dff;
+      border-radius: 12px;
+      padding: 20px;
+      width: 220px;
+      background: #fafafa;
+      box-shadow: 0 0 12px rgba(166, 77, 255, 0.6);
+      transition: all 0.3s ease;
+    }
+    .box:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 0 20px rgba(166, 77, 255, 0.9);
+    }
+    .box h3 {
+      color: #4b0082;
+      margin-bottom: 10px;
+    }
+    .box ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      text-align: left;
+    }
+    .box li::before {
+      content: "• ";
+      color: #a020f0;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.9em;
+      color: #777;
+      border-top: 1px solid #eee;
+      margin-top: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Navigation -->
+  <nav>
+    <ul>
+      <li><a href="#about">About</a></li>
+      <li><a href="#skills">Skills</a></li>
+      <li><a href="#certifications">Certifications</a></li>
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- Header -->
+  <header>
+    <p class="intro-line">Hey, I'm</p>
+    <p class="name-line">Boomika</p>
+    <p class="title-line">Information Technology | VCET</p>
+    <div class="links">
+      <a href="#">Email</a>
+      <a href="#">LinkedIn</a>
+      <a href="#">GitHub</a>
+    </div>
+  </header>
+
+  <!-- About Section -->
+  <section id="about">
+    <h2>About Me</h2>
+    <p>
+      As an Information Technology student, I am passionate about leveraging my skills 
+      to solve real-world problems. I have a keen interest in software development 
+      and love to explore new technologies that enhance the digital world.
+    </p>
+  </section>
+
+  <!-- Skills Section -->
+  <section id="skills">
+    <h2>Skills</h2>
+    <div class="box-container">
+      <div class="box">
+        <h3>Technical</h3>
+        <ul>
+          <li>C</li>
+          <li>Python (Basics)</li>
+          <li>Java</li>
+          <li>HTML & CSS</li>
+        </ul>
+      </div>
+      <div class="box">
+        <h3>Soft Skills</h3>
+        <ul>
+          <li>Communication</li>
+          <li>Problem Solving</li>
+          <li>Time Management</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Certifications Section -->
+  <section id="certifications">
+    <h2>Certifications</h2>
+    <div class="box-container">
+      <div class="box">
+        <ul>
+          <li>IDM Full Stack Internship</li>
+          <li>Infosys Springboard</li>
+          <li>NPTEL (Programming)</li>
+          <li>Coursera & +more</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Projects Section -->
+  <section id="projects">
+    <h2>Projects</h2>
+    <div class="box-container">
+      <div class="box">
+        <ul>
+          <li><strong>Portfolio Website:</strong> Created a personal portfolio using HTML & CSS with responsive design and glowing effects.</li>
+          <!-- Add more projects here if needed -->
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact">
+    <h2>Contact Me</h2>
+    <p>You can reach out via LinkedIn or Email for opportunities or collaborations.</p>
+  </section>
+
+  <footer>
+    &copy; 2025 Boomika | All rights reserved.
+  </footer>
+
+</body>
+</html>
